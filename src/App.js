@@ -1,14 +1,27 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import TodoList from "./Todo/TodoList";
 import Context from "./Todo/context";
+import Loader from "./Loader";
+import AddTodo from "./Todo/AddTodo";
+import Modal from "./Modal/Modal";
+
 
 function App() {
   //состояние
-  const [todos, setTodos] = React.useState([
-    {id: 1, completed: false, title: 'Купть хлеб'},
-    {id: 2, completed: false, title: 'Купть масло'},
-    {id: 3, completed: false, title: 'Купть молоко'}
-  ]);
+  const [todos, setTodos] = React.useState([]);
+  //новое состояние, для того чтоб следить за Loading
+  const [loading, setLoading] = React.useState(true);
+  //работа с сервером
+  useEffect(() => {
+    fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
+      .then(response => response.json())
+      .then(todos => {
+        setTimeout(() => {
+          setTodos(todos)
+          setLoading(false)
+        }, 2000)
+      })
+  }, []);
 
   //функция изменения состояния чекбокса
   function toggleTodo(id) {
@@ -26,15 +39,29 @@ function App() {
     setTodos(todos.filter(todo => todo.id !== id))
   }
 
+  //функция для создания новой todo 
+  function addTodo(title) {
+    setTodos(todos.concat([{
+      title,
+      id: Date.now(),
+      completed: false
+    }]))
+  }
+
   return (
     <Context.Provider value={{removeTodo}}>
       <div className='wrapper'>
-        <h1>React Tutorial</h1>
+        <h1>Todo Tutorial</h1>
+        <Modal />
+
+        <AddTodo onCreate={addTodo}/>
+
+        {loading && <Loader/>}
 
         {todos.length ? (
           <TodoList todos={todos} onToggle={toggleTodo}/>
         ) : (
-          <p>No todos!</p>
+          loading ? null : <p>No todos!</p>
         )}
 
       </div>

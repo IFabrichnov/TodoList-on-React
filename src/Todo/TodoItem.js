@@ -19,7 +19,7 @@ const styles = {
 
 function TodoItem({todo, index, onChange}) {
   //используем контекст из App.js
-  const { removeTodo } = useContext(Context);
+  const {removeTodo} = useContext(Context);
 
   //добавление класса, если todoitem выполнен
   const classes = [];
